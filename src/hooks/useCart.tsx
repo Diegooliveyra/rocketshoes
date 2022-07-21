@@ -1,7 +1,14 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
-import { Product, Stock } from '../types';
+import { Product } from '../types';
 
 interface CartProviderProps {
   children: ReactNode;
@@ -32,6 +39,20 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     return [];
   });
 
+  const prevCartRef = useRef<Product[]>();
+
+  useEffect(() => {
+    prevCartRef.current = cart;
+  });
+
+  const cardPerviousValue = prevCartRef.current ?? cart;
+
+  useEffect(() => {
+    if (cardPerviousValue !== cart) {
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart));
+    }
+  }, [cardPerviousValue, cart]);
+
   const addProduct = async (productId: number) => {
     try {
       const updatedCart = [...cart]; //Cria um novo array com os dados do carrinho
@@ -58,7 +79,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         updatedCart.push(newProduct);
       }
       setCart(updatedCart);
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
     } catch {
       toast.error('Erro na adição do produto');
     }
@@ -73,7 +93,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (index !== -1) {
         updatedCart.splice(index, 1);
         setCart(updatedCart);
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
       } else {
         throw Error();
       }
@@ -106,7 +125,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (productExist) {
         productExist.amount = amount;
         setCart(updatedCart);
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
       } else {
         throw Error();
       }

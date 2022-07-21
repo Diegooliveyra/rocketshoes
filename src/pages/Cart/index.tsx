@@ -22,14 +22,15 @@ const Cart = (): JSX.Element => {
 
   const cartFormatted = cart.map(product => ({
     ...product,
-    priceFormatted: formatPrice(product.price)
+    priceFormatted: formatPrice(product.price),
+    subTotal: formatPrice(product.price * product.amount),
   }))
 
 
   const total =
     formatPrice(
       cart.reduce((sumTotal, product) => {
-        return sumTotal += product.price
+        return sumTotal += product.price * product.amount;
       }, 0)
     )
 
@@ -97,7 +98,7 @@ const Cart = (): JSX.Element => {
                </div>
              </td>
              <td>
-               <strong>{product.priceFormatted}</strong>
+               <strong>{product.subTotal}</strong>
              </td>
              <td>
                <button
